@@ -6,22 +6,22 @@ from tkSimpleDialog import askstring
 from tkFileDialog   import asksaveasfilename
 import corpus
 import operator
+from analyzer import Analyzer
 
 class Channel(Frame):
 	def __init__(self, parent, textframe, corpus, num=0):
 		Frame.__init__(self, parent)
 		self.channel_name = corpus.name
 		self.channel_num = num
-<<<<<<< Updated upstream
-		self.mode = 'letterlabel'
-=======
+
 		self.mode = 'shift'
->>>>>>> Stashed changes
+
 		self.num_options = 15
 		self.settings = {'color': 'black'}
 		self.parent = parent
 		self.textframe = textframe
 		self.corpus = corpus
+		self.analyzer = Analyzer(self.corpus)
 		self.font = parent.font
 		self.pack(side = LEFT)
 		self.current_options = self.get_options()
@@ -34,21 +34,21 @@ class Channel(Frame):
 	# first member of ith tuple is the label. second member is the keystroke to input i
 	def optionmap(self):
 		if self.mode == 'alpha':
-			return [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), 
+			return [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'),
 				('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('0', '0'),
-				('a', 'a'), ('b', 'b'), ('c', 'c'), ('d', 'd'), ('e', 'e'), 
+				('a', 'a'), ('b', 'b'), ('c', 'c'), ('d', 'd'), ('e', 'e'),
 				('f', 'f'), ('g', 'g'), ('h', 'h'), ('i', 'i'), ('j', 'j')]
 		elif self.mode == 'shift':
-			return [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), 
+			return [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'),
 				('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('0', '0'),
-				('1*', '!'), ('2*', '@'), ('3*', '#'), ('4*', '$'), ('5*', '%'), 
+				('1*', '!'), ('2*', '@'), ('3*', '#'), ('4*', '$'), ('5*', '%'),
 				('6*', '^'), ('7*', '&'), ('8*', '*'), ('9*', '('), ('0*', ')')]
 		elif self.mode == 'letterlabel':
-			return [('a', 'a'), ('b', 'b'), ('c', 'c'), ('d', 'd'), ('e', 'e'), 
+			return [('a', 'a'), ('b', 'b'), ('c', 'c'), ('d', 'd'), ('e', 'e'),
 				('f', 'f'), ('g', 'g'), ('h', 'h'), ('i', 'i'), ('j', 'j'),
-				('k', 'k'), ('l', 'l'), ('m', 'm'), ('n', 'n'), ('o', 'o'), 
-				('p', 'p'), ('q', 'q'), ('r', 'r'), ('s', 's'), ('t', 't')] 
-		
+				('k', 'k'), ('l', 'l'), ('m', 'm'), ('n', 'n'), ('o', 'o'),
+				('p', 'p'), ('q', 'q'), ('r', 'r'), ('s', 's'), ('t', 't')]
+
 	def make_keyboard(self, parent, words_and_scores, weight=100):
 		keyboard = Frame(parent, padx = 10)
 		header = Frame(keyboard)
@@ -69,20 +69,23 @@ class Channel(Frame):
 			score = words_and_scores[i][1]
 			color = self.score_to_color(score*2)
 			#print score, color
+
+
+
 			Label(optkey, text = keylabel, width = 4, anchor = W, font = self.font, bg = color, fg = 'white').pack(side = LEFT)
 			label = option
-			b = Label(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
+			b = Label(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0,
 			#command= lambda word=option: self.onAddWord(word),
 			 pady = 0, padx = 10)
 			b.pack(side = LEFT)
 			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
-		mainkeys.pack()		
+		mainkeys.pack()
 		return keyboard
-		
+
 	def score_to_color(self, score):
 		return self.get_color(score,0,0)
-	
+
 	# convert list of three RGB values to a string representing a color
 	def get_color(self, x, y, z):
 		if x >= 256:
@@ -93,21 +96,21 @@ class Channel(Frame):
 			z = 255
 		#print x, y, z
 		return '#%02x%02x%02x' % (x, y, z)
-	
+
 	def getWeight(self):
 		return self.wt_scale.get()
-	
+
 	def onDel(self):
 		self.master.removeChannel(self.channel_num)
 		self.destroy()
-	
+
 	def onAddWord(self, word):
 		t = self.textframe
 		t.insert(INSERT, " "+str(word))
 		t.see(END)
 		self.refresh_keyboard()
 		return 'break'
-	
+
 	def refresh_keyboard(self):
 		self.current_options = self.get_options()
 		words_and_scores = []
@@ -120,15 +123,12 @@ class Channel(Frame):
 		self.keyboard.destroy()
 		self.keyboard = self.make_keyboard(self, words_and_scores, weight)
 		self.keyboard.pack(anchor = W)
-		
+
 	def get_options(self):
 		previous_words = self.parent.get_previous()
 		next_words = self.parent.get_next()
-		
-		full_list = self.corpus.suggest(previous_words, next_words)
+
+		full_list = self.analyzer.suggest(previous_words, next_words)
 		short_list = full_list[0:100]
 		suggestions = full_list[0:self.num_options]
 		return short_list
-				
-
-

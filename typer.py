@@ -14,16 +14,13 @@ class Editor(Frame):
 		self.pack(expand=YES, fill=BOTH)
 		self.font = tkFont.Font(family="Helvetica", size=12)
 		Button(self, text='Load',  command=self.onLoad).pack()
-		
-		
-		
+
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		c = Corpus('treadmill',file('texts/laguardia.txt').read())
-		
-		
+		c = Corpus('treadmill',file('texts/IraGlass').read())
+
 		self.channels = self.channels_from_corpora([c])
-		self.master_channel = MasterChannel(self, self.textbox, self.channels) 
+		self.master_channel = MasterChannel(self, self.textbox, self.channels)
 		self.channels.append(self.master_channel)
 		self.select_channel(0)
 		self.textbox.bind('<BackSpace>', self.onDelWord)
@@ -41,12 +38,12 @@ class Editor(Frame):
 	def select_channel(self, n):
 		self.active_number = n
 		self.refresh_keyboards()
-	
+
 	# removes channel n
 	def removeChannel(self, n):
 		del self.channels[n]
 		if self.active_number == n:
-			self.select_channel(0)	
+			self.select_channel(0)
 
 	# given a list of corpora, adds new channels from those corpora
 	def channels_from_corpora(self, corpora, channels = []):
@@ -73,7 +70,7 @@ class Editor(Frame):
 	def onLoad(self):
 		self.load_window = LoadWindow(Toplevel(self), self)
 
-	def refresh_keyboards(self):	
+	def refresh_keyboards(self):
 		for cnum in range(len(self.channels)):
 			channel = self.channels[cnum]
 			if not cnum == self.active_number:
@@ -82,7 +79,7 @@ class Editor(Frame):
 		active_channel = self.channels[self.active_number]
 		active_channel.settings['color'] = 'blue'
 		active_channel.refresh_keyboard()
-	
+
 	def get_master(self):
 		keyboard = Frame(self, padx = 10)
 		header = Frame(keyboard)
@@ -102,50 +99,50 @@ class Editor(Frame):
 			Label(optkey, text = keylabel, width = 4, anchor = W, font = self.font).pack(side = LEFT)
 			option = wordlist[i]
 			label = option
-			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
+			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0,
 			command= lambda word=option: self.onAddWord(word), pady = 0)
 			b.pack(side = LEFT)
 			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
 		mainkeys.pack()
-		
-	
+
+
 	def onMute(self, event):
 		self.channels[self.active_number].wt_scale.set(0)
 		self.refresh_keyboards
 		return 'break'
-	
+
 	# volume up
 	def onPlus(self, event):
 		c = self.channels[self.active_number]
 		c.wt_scale.set(c.wt_scale.get() + 10)
 		self.refresh_keyboards()
 		return 'break'
-		
+
 	# volume down
 	def onMinus(self, event):
 		c = self.channels[self.active_number]
 		c.wt_scale.set(c.wt_scale.get() - 10)
 		self.refresh_keyboards()
 		return 'break'
-	
+
 	# goes to the next channel on tab press
 	def onTab(self, event):
 		self.cycle(1)
 		return 'break'
-		
+
 	def onShiftTab(self, event):
 		self.cycle(-1)
 		return 'break'
-		
+
 	def cycle(self, n):
 		self.active_number = (self.active_number + n) % len(self.channels)
 		self.select_channel(self.active_number)
-		
+
 	def onReturn(self, event):
 		self.refresh_keyboards()
 		return 'break'
-	
+
 	def onArrowLeft(self, event):
 		t = self.text_frame.text
 		prev_wordbreak = t.search(' ', INSERT, stopindex='1.0', backwards=True)
@@ -154,7 +151,7 @@ class Editor(Frame):
 		else:
 			self.textbox.mark_set(INSERT, '1.0')
 		self.refresh_keyboards()
-		
+
 	def onArrowRight(self, event):
 		t = self.text_frame.text
 		next_wordbreak = t.search(' ', '%s+1c' %INSERT, stopindex='end')
@@ -163,7 +160,7 @@ class Editor(Frame):
 		else:
 			self.textbox.mark_set(INSERT, END)
 		self.refresh_keyboards()
-	
+
 	def onDelWord(self, event):
 		t = self.text_frame.text
 		prev_wordbreak = t.search(' ', '%s-1c' % INSERT, stopindex='1.0', backwards=True)
@@ -178,7 +175,7 @@ class Editor(Frame):
 			end = END
 		t.delete('%s+1c' % start, end)
 		self.refresh_keyboards()
-	
+
 	def get_previous(self):
 		previous = self.textbox.get('insert linestart', INSERT).split()
 		reach = 2
@@ -186,7 +183,7 @@ class Editor(Frame):
 			return previous[-1*reach:]
 		else:
 			return ['[$]'] + previous		# sentence start marker
-		
+
 	def make_num_opt_menu(self, parent, dictionary, title):
 		panel = Frame(parent)
 		Label(panel, text = title).pack()
@@ -204,11 +201,11 @@ class Editor(Frame):
 			return next[0:2]
 		else:
 			return next
-	
+
 	def setNumOptions(self):
 		for c in self.channels:
 			c.num_options = self.opt_box.get()
-	
+
 	def onDebug(self, event):
 		for ch in self.channels:
 			for corpus in ch.corpora:
