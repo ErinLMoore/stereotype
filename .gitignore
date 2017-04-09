@@ -90,3 +90,5 @@ ENV/
 .ropeproject
 
 .pyc
+
+.DS_Store

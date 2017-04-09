@@ -18,7 +18,6 @@ class Editor(Frame):
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
 		c = Corpus('treadmill',file('texts/IraGlass').read())
-
 		self.channels = self.channels_from_corpora([c])
 		self.master_channel = MasterChannel(self, self.textbox, self.channels)
 		self.channels.append(self.master_channel)
@@ -64,6 +63,18 @@ class Editor(Frame):
 			print channel_num, self.channels[channel_num].channel_name
 		print "active:", self.active_number
 
+	# given a list of paths, and optionally a list of existing channels, adds new channels generated from those paths
+	def channels_from_paths(self, paths, channels = []):
+		print"the paths list in channels_from_paths in typer is", paths
+		for path in paths:
+			name = path.split('/')[1:]
+			print "path name is ", name
+			if not self.name_in_channels(name, channels):
+				source_text = file(path).read()
+				corpus = Corpus(source_text, name)
+				channels.append(Channel(self, self.textbox, corpus, len(channels)))
+		return channels
+
 	def onScrape(self):
 		self.sw = ScrapeWindow(Toplevel(self))
 
@@ -105,7 +116,6 @@ class Editor(Frame):
 			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
 		mainkeys.pack()
-
 
 	def onMute(self, event):
 		self.channels[self.active_number].wt_scale.set(0)

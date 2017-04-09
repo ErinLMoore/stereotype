@@ -8,7 +8,7 @@ import math
 class Corpus(object):
 	def __init__(self, name, text):
 		self.name = name
-		self.text = text 
+		self.text = text
 		self.wordcount = 0
 		self.max_reach = 2
 		self.tree = {}
@@ -24,6 +24,11 @@ class Corpus(object):
 	takes a natural language source text
 	"""
 	def eat_text(self, source_text):
+		#source text is a list when files are loaded by typer's channels_from_paths. not sure why.
+		print("the source text in eat_text is type", type(source_text))
+		if type(source_text) is list:
+			source_text = ' '.join(source_text)
+		#print("the source text in eat_text is type", type(source_text))
 		source_text = source_text.lower().replace('\xe2\x80\x99',"'") 	# last call gets rid of slanted apostrophe
 		sentences = source_text.strip('\n') \
                         .translate(string.maketrans('', ''), string.punctuation.replace('\'', '')) \
